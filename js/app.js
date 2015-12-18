@@ -101,6 +101,38 @@ function Graphics(context) {
     }
   };
 
+  const drawSZ = (posX, posY, orientation, reverse) => {
+    const color = (reverse === SIDING.STRAIGHT) ? "#da010e" : "#0fc316";
+    switch (orientation) {
+      case ORIENTATION.UP:
+        drawBlock(posX, posY - BLOCK_HEIGHT, color);
+        posX += BLOCK_WIDTH * reverse;
+        break;
+      case ORIENTATION.DOWN:
+        drawBlock(posX, posY + BLOCK_HEIGHT, color);
+        posX -= BLOCK_WIDTH * reverse;
+        break;
+      case ORIENTATION.LEFT:
+        for (var index = posX - BLOCK_WIDTH; index < posX + 1; index += BLOCK_WIDTH) {
+          drawBlock(index, posY, color);
+        }
+        posY += BLOCK_HEIGHT;
+        for (var index = posX; index < posX + BLOCK_WIDTH + 1; index += BLOCK_WIDTH) {
+          drawBlock(index, posY, color);
+        }
+        drawBlock(posX - BLOCK_WIDTH, posY, color);
+        drawBlock(posX - BLOCK_WIDTH, posY, color);
+        posY -= BLOCK_HEIGHT * reverse;
+        break;
+      case ORIENTATION.RIGHT:
+        drawBlock(posX + BLOCK_WIDTH, posY, color);
+        posY += BLOCK_HEIGHT * reverse;
+        break;
+      default:
+        // stop the program if we end up there
+    }
+  };
+
   drawBar(0, 0, ORIENTATION.UP);
   drawSquare(64, 0);
   drawHook(BLOCK_WIDTH * 8, BLOCK_HEIGHT * 1, ORIENTATION.RIGHT, SIDING.STRAIGHT);
@@ -113,10 +145,35 @@ function Graphics(context) {
   drawHook(BLOCK_WIDTH * 4, BLOCK_HEIGHT * 9, ORIENTATION.LEFT, SIDING.REVERSE);
   drawHook(BLOCK_WIDTH * 1, BLOCK_HEIGHT * 11, ORIENTATION.DOWN, SIDING.REVERSE);
 
+  drawSZ(BLOCK_WIDTH * 8, BLOCK_HEIGHT * 15, ORIENTATION.LEFT, SIDING.STRAIGHT);
+  drawSZ(BLOCK_WIDTH * 1, BLOCK_HEIGHT * 15, ORIENTATION.LEFT, SIDING.REVERSE);
   // this.drawBlock = (posX, posY) => {
   //
   // };
 }
+
+// function Timer() {
+//   const tick = 0;
+//   const that = this;
+//   let elapsedTime = 0;
+//
+//   this.setTick = (tick) => {
+//     that._tick = tick;
+//   };
+//
+//   this.tickEvent = () => {
+//     // console.log(that._tick);
+//   };
+//
+//   this.start = () => {
+//     elapsedTime = setTimeout(() => {
+//       that.tickEvent();
+//       that.start();
+//       // console.log(elapsedTime);
+//     }, this._tick);
+//   };
+//   return this;
+// }
 
 const app = () => {
 
@@ -129,5 +186,43 @@ const app = () => {
 
   const graphics = new Graphics(ctx);
 
+  // const repeatTime = 1000;
+
+  // const timer = () => {
+  //   const elapsedTime = setTimeout(() => {
+  //     console.log(`Hello at ${elapsedTime} s`);
+  //     if (elapsedTime >= 10) {
+  //       clearTimeout(elapsedTime);
+  //     } else {
+  //       timer();
+  //     }
+  //   }, repeatTime);
+  // };
+
+  // timer();
+  // const timer = new Timer();
+  //
+  // timer.setTick(60 / 1000);
+  // timer.tickEvent = () => {
+  //   // console.log(this);
+  // };
+  // timer.start();
   // graphics.drawRect(0, 0, 25, 25);
 })();
+
+// const clientData = {
+//     id: 094545,
+//     fullName: "Not Set",
+//
+//     setUserName: function (firstName, lastName)  {
+//       this.fullName = firstName + " " + lastName;
+//     }
+// };
+//
+// function getUserInput(firstName, lastName, callback) {
+//   callback.apply(clientData, [firstName, lastName]);
+// }
+//
+// getUserInput ("Barack", "Obama", clientData.setUserName);
+// console.log (clientData.fullName);// Not Set​
+// console.log (window.fullName); // Barack Obama
