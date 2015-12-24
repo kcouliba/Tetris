@@ -33,8 +33,8 @@ function App() {
 
   // Initializes the grid
   function initGrid() {
-    for(var yIndex = 19; yIndex >= 0; yIndex--) {
-      for(var xIndex = 9; xIndex >= 0; xIndex--) {
+    for(var yIndex = ROW_COUNT - 1; yIndex >= 0; yIndex--) {
+      for(var xIndex = COLUMN_COUNT - 1; xIndex >= 0; xIndex--) {
         grid[xIndex + COLUMN_COUNT * yIndex] = emptyCell;
       }
     }
@@ -44,7 +44,7 @@ function App() {
   function placePiece() {
     block = [];
 
-    for (var i = 4; i < 7; i++) {
+    for (var i = 3; i < 7; i++) {
       // we store the piece
       block.push({ x: i, y: 0 });
       grid[i + COLUMN_COUNT * 0] = {
@@ -54,13 +54,36 @@ function App() {
     }
   }
 
+  function getPieceCenter() {
+    const coord = {
+      x: 0,
+      y: 0
+    };
+    // to store the current x and y level
+    const level = {
+      x: block[block.length - 1].x,
+      y: block[block.length - 1].y
+    };
+    for (var index = block.length - 1; index >= 0 ; index--) {
+      if (block[index].x != level.x) {
+        coord.y++;
+      }
+      if (block[index].y != level.y) {
+        coord.x++;
+      }
+    }
+    return { x: parseInt(coord.x / 2), y: parseInt(coord.y / 2) };
+  }
+
   function lockBlocks(x, y) {
-    if ((x < 0) || (x > 9) || (y < 0) || (y > 19)
+    if ((x < 0) || (x >= COLUMN_COUNT) || (y < 0) || (y >= ROW_COUNT)
         || (grid[x + COLUMN_COUNT * y].state !== CELL_STATE.ACTIVE)) {
       return;
     }
-    grid[x + COLUMN_COUNT * y].state = CELL_STATE.LOCKED;
-    grid[x + COLUMN_COUNT * y].color = "#0000ff";
+    grid[x + COLUMN_COUNT * y] = {
+      state: CELL_STATE.LOCKED,
+      color: "#0000ff"
+    };
     lockBlocks(x + 1, y);
     lockBlocks(x - 1, y);
     lockBlocks(x, y + 1);
@@ -141,7 +164,7 @@ function App() {
 
     for (let index = block.length - 1; index >= 0; index--) {
       cell = grid[(block[index].x + 1) + COLUMN_COUNT * block[index].y];
-      if ((block[index].x + 1 > 9) || (cell.state === CELL_STATE.LOCKED)) {
+      if ((block[index].x + 1 > COLUMN_COUNT - 1) || (cell.state === CELL_STATE.LOCKED)) {
         return;
       }
       newPosition.push({
@@ -166,11 +189,19 @@ function App() {
     }
   };
 
+  this.rotatePieceClockwise = () => {
+    console.log(getPieceCenter());
+  };
+
+  this.rotatePieceAntiClockwise = () => {
+    console.log(getPieceCenter());
+  };
+
   this.getGrid = () => {
     const returnedGrid = [];
 
-    for(var yIndex = 19; yIndex >= 0; yIndex--) {
-      for(var xIndex = 9; xIndex >= 0; xIndex--) {
+    for(var yIndex = ROW_COUNT - 1; yIndex >= 0; yIndex--) {
+      for(var xIndex = COLUMN_COUNT - 1; xIndex >= 0; xIndex--) {
         returnedGrid[xIndex + COLUMN_COUNT * yIndex] = grid[xIndex + COLUMN_COUNT * yIndex].color;
         if (grid[xIndex + COLUMN_COUNT * yIndex].state === CELL_STATE.ACTIVE) {
           returnedGrid[xIndex + COLUMN_COUNT * yIndex] = "#ff0000";
@@ -203,8 +234,12 @@ function App() {
       app.movePieceRight();
     } else if (evt.which === "d".charCodeAt(0)) {
       app.movePieceDown();
+    } else if (evt.which === "y".charCodeAt(0)) {
+      app.rotatePieceClockwise();
+    } else if (evt.which === "t".charCodeAt(0)) {
+      app.rotatePieceAntiClockwise();
     } else if (evt.which === "s".charCodeAt(0)) {
-      app.lockPiece();
+
     }
     app.update();
     graphics.render(app.getGrid());
