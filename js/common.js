@@ -1,6 +1,6 @@
 // Function to convert degrees to radians
 const deg2rad = (deg) => {
-  return (deg / 180) * Math.PI;
+  return Math.PI * (deg / 180);
 };
 
 // Function that check if value is an array

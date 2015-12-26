@@ -19,18 +19,6 @@ function App() {
   // The current piece coordinates
   let block = [];
 
-  this.init = () => {
-    initGrid();
-  };
-
-  this.invokePiece = () => {
-    placePiece();
-  };
-
-  this.update = () => {
-
-  };
-
   // Initializes the grid
   function initGrid() {
     for(var yIndex = ROW_COUNT - 1; yIndex >= 0; yIndex--) {
@@ -46,7 +34,11 @@ function App() {
 
     for (var i = 3; i < 7; i++) {
       // we store the piece
-      block.push({ x: i, y: 0 });
+      block.push({
+        x: i,
+        y: 0,
+        center: (i === 5) ? true : false
+      });
       grid[i + COLUMN_COUNT * 0] = {
         state: CELL_STATE.ACTIVE,
         color: "#aabbcc"
@@ -54,30 +46,42 @@ function App() {
     }
   }
 
+  // Returns the current block center piece (for rotation)
   function getPieceCenter() {
-    const coord = {
-      x: 0,
-      y: 0
-    };
-    // to store the current x and y level
-    const level = {
-      x: block[block.length - 1].x,
-      y: block[block.length - 1].y
-    };
     for (var index = block.length - 1; index >= 0 ; index--) {
-      if (block[index].x != level.x) {
-        coord.y++;
-      }
-      if (block[index].y != level.y) {
-        coord.x++;
+      if (block[index].center) {
+        return {
+          x: block[index].x,
+          y: block[index].y
+        };
       }
     }
-    return { x: parseInt(coord.x / 2), y: parseInt(coord.y / 2) };
+    return null;
+  }
+  
+  // Cleans the block position on game grid
+  function clean() {
+    for (let index = block.length - 1; index >= 0; index--) {
+      grid[block[index].x + COLUMN_COUNT * block[index].y] = {
+        state: CELL_STATE.INACTIVE,
+        color: BLOCK_COLOR.NONE
+      };
+    }
+  }
+  
+  // Update the current block position in the game grid
+  function updateBlockPosition() {
+    for (let index = block.length - 1; index >= 0; index--) {
+      grid[block[index].x + COLUMN_COUNT * block[index].y] = {
+        state: CELL_STATE.ACTIVE,
+        color: "#aabbcc"
+      };
+    }
   }
 
+  // Locks a dropped block
   function lockBlocks(x, y) {
-    if ((x < 0) || (x >= COLUMN_COUNT) || (y < 0) || (y >= ROW_COUNT)
-        || (grid[x + COLUMN_COUNT * y].state !== CELL_STATE.ACTIVE)) {
+    if ((y >= ROW_COUNT) || grid[x + COLUMN_COUNT * y].state !== CELL_STATE.ACTIVE) {
       return;
     }
     grid[x + COLUMN_COUNT * y] = {
@@ -89,112 +93,102 @@ function App() {
     lockBlocks(x, y + 1);
     lockBlocks(x, y - 1);
   }
-
-  // Moves the piece one step toward the bottom of the grid
-  this.movePieceDown = () => {
+  
+  function moveBlock(moveX, moveY) {
     let cell = null;
     let newPosition = [];
 
     for (let index = block.length - 1; index >= 0; index--) {
-      cell = grid[block[index].x + COLUMN_COUNT * (block[index].y + 1)];
-      if (cell && (cell.state !== CELL_STATE.LOCKED)) {
-        newPosition.push({
-          x: block[index].x,
-          y: block[index].y + 1
-        });
-      } else {
-        lockBlocks(block[index].x, block[index].y);
-        placePiece();
-        return ;
+      cell = grid[(block[index].x + moveX) + COLUMN_COUNT * (block[index].y + moveY)];
+      // out of bounds test
+      if ((block[index].x + moveX < 0) || (block[index].x + moveX >= COLUMN_COUNT)) {
+        return false;
       }
-    }
-    // we clean previous block position
-    for (let index = block.length - 1; index >= 0; index--) {
-      grid[block[index].x + COLUMN_COUNT * block[index].y] = {
-        state: CELL_STATE.INACTIVE,
-        color: BLOCK_COLOR.NONE
-      };
-    }
-    // we draw the block to its new position
-    block = newPosition;
-    for (let index = block.length - 1; index >= 0; index--) {
-      grid[block[index].x + COLUMN_COUNT * block[index].y] = {
-        state: CELL_STATE.ACTIVE,
-        color: "#aabbcc"
-      };
-    }
-  }
-
-  // Moves the piece one step toward the left side of the grid
-  this.movePieceLeft = () => {
-    let cell = null;
-    let newPosition = [];
-
-    for (let index = block.length - 1; index >= 0; index--) {
-      cell = grid[(block[index].x - 1) + COLUMN_COUNT * block[index].y];
-      if ((block[index].x - 1 < 0) || (cell.state === CELL_STATE.LOCKED)) {
-        return;
+      // test if it is a cell
+      if (!cell) {
+        return false;
+      }
+      // test if that cell isn't locked
+      if (cell.state === CELL_STATE.LOCKED) {
+        return false;
       }
       newPosition.push({
-        x: block[index].x - 1,
-        y: block[index].y
+        x: block[index].x + moveX,
+        y: block[index].y + moveY,
+        center: block[index].center
       });
     }
-    // we clean previous block position
-    for (let index = block.length - 1; index >= 0; index--) {
-      grid[block[index].x + COLUMN_COUNT * block[index].y] = {
-        state: CELL_STATE.INACTIVE,
-        color: BLOCK_COLOR.NONE
-      };
-    }
-    // we draw the block to its new position
+    clean();
     block = newPosition;
-    for (let index = block.length - 1; index >= 0; index--) {
-      grid[block[index].x + COLUMN_COUNT * block[index].y] = {
-        state: CELL_STATE.ACTIVE,
-        color: "#aabbcc"
+    return true;
+  }
+  
+  // angle is in radians
+  // TODO:
+  //  make test on new position to adapt behaviour on collision detection
+  function rotateBlock(angle) {
+    const rotationMatrix = [
+      Math.round(Math.cos(angle)),
+      Math.round(- Math.sin(angle)),
+      Math.round(Math.sin(angle)),
+      Math.round(Math.cos(angle))
+    ];
+    const origin = getPieceCenter();
+    const newPosition = [];
+    
+    clean();
+    for(let index = block.length - 1; index >= 0; index--) {
+      newPosition[index] = {
+        x: ((block[index].x - origin.x) * rotationMatrix[0] + (block[index].y - origin.y) * rotationMatrix[2]),
+        y: ((block[index].x - origin.x) * rotationMatrix[1] + (block[index].y - origin.y) * rotationMatrix[3]),
+        center: block[index].center
       };
+      newPosition[index].x += origin.x;
+      newPosition[index].y += origin.y;
+    }
+    block = newPosition;
+    return newPosition;
+  }
+  
+  // initializes application environnement
+  this.init = () => {
+    initGrid();
+  };
+
+  // starts a game
+  this.gameStart = () => {
+    placePiece();
+  };
+  
+  // updates application environnement
+  this.update = () => {
+    updateBlockPosition();
+  };
+
+  // moves the piece one step toward the bottom of the grid
+  this.movePieceDown = () => {
+    if (moveBlock(0, 1) === false) {
+      lockBlocks(block[0].x, block[0].y);
+      placePiece();
     }
   };
 
-  // Moves the piece one step toward the right side of the grid
-  this.movePieceRight = () => {
-    let cell = null;
-    let newPosition = [];
+  // moves the piece one step toward the left side of the grid
+  this.movePieceLeft = () => {
+    moveBlock(-1, 0);
+  };
 
-    for (let index = block.length - 1; index >= 0; index--) {
-      cell = grid[(block[index].x + 1) + COLUMN_COUNT * block[index].y];
-      if ((block[index].x + 1 > COLUMN_COUNT - 1) || (cell.state === CELL_STATE.LOCKED)) {
-        return;
-      }
-      newPosition.push({
-        x: block[index].x + 1,
-        y: block[index].y
-      });
-    }
-    // we clean previous block position
-    for (let index = block.length - 1; index >= 0; index--) {
-      grid[block[index].x + COLUMN_COUNT * block[index].y] = {
-        state: CELL_STATE.INACTIVE,
-        color: BLOCK_COLOR.NONE
-      };
-    }
-    // we draw the block to its new position
-    block = newPosition;
-    for (let index = block.length - 1; index >= 0; index--) {
-      grid[block[index].x + COLUMN_COUNT * block[index].y] = {
-        state: CELL_STATE.ACTIVE,
-        color: "#aabbcc"
-      };
-    }
+  // moves the piece one step toward the right side of the grid
+  this.movePieceRight = () => {
+    moveBlock(1, 0);
   };
 
   this.rotatePieceClockwise = () => {
-    console.log(getPieceCenter());
+    rotateBlock(- Math.PI / 2);
   };
 
   this.rotatePieceAntiClockwise = () => {
-    console.log(getPieceCenter());
+    rotateBlock(Math.PI / 2);
   };
 
   this.getGrid = () => {
@@ -210,7 +204,6 @@ function App() {
     }
     return returnedGrid;
   };
-  return this;
 };
 
 // App entrance
@@ -220,14 +213,17 @@ function App() {
   const app = new App();
   const graphics = new Graphics(ctx);
 
+  canvas.style.witdh = WIDTH;
+  canvas.style.height = HEIGHT;
+  canvas.setAttribute("width", WIDTH + "px");
+  canvas.setAttribute("height", HEIGHT + "px");
   app.init();
-  app.invokePiece();
   graphics.render(app.getGrid());
 
   // Debug
   document.addEventListener("keypress", (evt) => {
     if (evt.which === "n".charCodeAt(0)) {
-      app.invokePiece();
+      app.gameStart();
     } else if (evt.which === "l".charCodeAt(0)) {
       app.movePieceLeft();
     } else if (evt.which === "r".charCodeAt(0)) {
@@ -245,8 +241,6 @@ function App() {
     graphics.render(app.getGrid());
   });
 })();
-
-
 
 
 

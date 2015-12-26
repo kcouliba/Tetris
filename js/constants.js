@@ -1,8 +1,8 @@
 // Constants
 
 // Display
-const WIDTH = 320;
-const HEIGHT = 640;
+const WIDTH = 280;
+const HEIGHT = WIDTH * 2;
 
 // Display grid
 const COLUMN_COUNT = 10;
