@@ -1,10 +1,10 @@
-// Represents an empty cell
+// Represents an empty cell (DEBUG)
 const emptyCell = {
   state: CELL_STATE.INACTIVE,
   color: BLOCK_COLOR.NONE
 };
 
-// Represents an active cell
+// Represents an active cell (DEBUG)
 const activeCell = {
   state: CELL_STATE.ACTIVE,
   color: "#aabbcc"
@@ -18,6 +18,8 @@ function App() {
   const grid = [];
   // The current piece coordinates
   let block = [];
+  // Stores lines to be cleared
+  let clear = [];
 
   // Initializes the grid
   function initGrid() {
@@ -71,6 +73,9 @@ function App() {
   
   // Update the current block position in the game grid
   function updateBlockPosition() {
+    if (block.length === 0) {
+      placePiece();
+    }
     for (let index = block.length - 1; index >= 0; index--) {
       grid[block[index].x + COLUMN_COUNT * block[index].y] = {
         state: CELL_STATE.ACTIVE,
@@ -150,6 +155,48 @@ function App() {
     return newPosition;
   }
   
+  // scans the grid for complete line checking
+  function scan() {
+    let complete = true;
+    
+    clear = [];
+    for(var yIndex = ROW_COUNT - 1; yIndex >= 0; yIndex--) {
+      complete = true;
+      for(var xIndex = COLUMN_COUNT - 1; xIndex >= 0; xIndex--) {
+        if (grid[xIndex + COLUMN_COUNT * yIndex].state !== CELL_STATE.LOCKED) {
+          complete = false;
+          break;
+        }
+      }
+      if (complete) {
+        clear.push(yIndex);
+      }
+    }
+    return clear;
+  }
+
+  // updates the grid cell statuses
+  function updateGrid() {
+    let empty = true;
+    let offset = 0;
+    
+    for(var rowIndex = ROW_COUNT - 1; rowIndex >= 0 + offset; rowIndex--) {
+      offset += (clear.indexOf(rowIndex) !== -1) ? 1 : 0;
+      for(var colIndex = COLUMN_COUNT - 1; colIndex >= 0; colIndex--) {
+        grid[colIndex + rowIndex * COLUMN_COUNT] = grid[colIndex + (rowIndex - offset) * COLUMN_COUNT];
+      }
+    }
+    --offset;
+    for(let rowIndex = offset; rowIndex >= 0; rowIndex--) {
+      for(var colIndex = COLUMN_COUNT - 1; colIndex >= 0; colIndex--) {
+        grid[colIndex + rowIndex * COLUMN_COUNT] = {
+          state: CELL_STATE.INACTIVE,
+          color: BLOCK_COLOR.NONE
+        };
+      }
+    }
+  }
+  
   // initializes application environnement
   this.init = () => {
     initGrid();
@@ -162,6 +209,8 @@ function App() {
   
   // updates application environnement
   this.update = () => {
+    scan();
+    updateGrid();
     updateBlockPosition();
   };
 
@@ -169,7 +218,7 @@ function App() {
   this.movePieceDown = () => {
     if (moveBlock(0, 1) === false) {
       lockBlocks(block[0].x, block[0].y);
-      placePiece();
+      block = [];
     }
   };
 
@@ -218,6 +267,7 @@ function App() {
   canvas.setAttribute("width", WIDTH + "px");
   canvas.setAttribute("height", HEIGHT + "px");
   app.init();
+  app.update();
   graphics.render(app.getGrid());
 
   // Debug
@@ -241,58 +291,3 @@ function App() {
     graphics.render(app.getGrid());
   });
 })();
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// const repeatTime = 1000;
-
-// const timer = () => {
-//   const elapsedTime = setTimeout(() => {
-//     console.log(`Hello at ${elapsedTime} s`);
-//     if (elapsedTime >= 10) {
-//       clearTimeout(elapsedTime);
-//     } else {
-//       timer();
-//     }
-//   }, repeatTime);
-// };
-
-// timer();
-// const timer = new Timer();
-//
-// timer.setTick(60 / 1000);
-// timer.tickEvent = () => {
-//   // console.log(this);
-// };
-// timer.start();
-// graphics.drawRect(0, 0, 25, 25);
-
-// const clientData = {
-//     id: 094545,
-//     fullName: "Not Set",
-//
-//     setUserName: function (firstName, lastName)  {
-//       this.fullName = firstName + " " + lastName;
-//     }
-// };
-//
-// function getUserInput(firstName, lastName, callback) {
-//   callback.apply(clientData, [firstName, lastName]);
-// }
-//
-// getUserInput ("Barack", "Obama", clientData.setUserName);
-// console.log (clientData.fullName);// Not Set
-// console.log (window.fullName); // Barack Obama
