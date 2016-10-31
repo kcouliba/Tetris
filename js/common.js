@@ -3,77 +3,75 @@ const deg2rad = (deg) => {
   return Math.PI * (deg / 180);
 };
 
-// Function that check if value is an array
-const isArray = (obj) => {
-  return (typeof(obj) === "object" && obj.length);
-};
-
-// Function that check all array values are equals
-const isArrayEquals = (arr1, arr2) => {
+// Function returns an array with only unique values from both arrays
+const uniq = (arr1, arr2) => {
   "use strict";
+  const uniqValues = [];
 
-  let isArr = true;
+  if (arr1 instanceof Array && arr2 instanceof Array) {
+    const tmpArr = arr1.concat(arr2);
+    const arrSize = tmpArr.length;
+    let tmpValue = null;
 
-  if (isArray(arr1) && isArray(arr2) && (arr1.length === arr2.length)) {
-    for (let index = arr1.length - 1; index >= 0; index--) {
-      if (!equals(arr1[index], arr2[index])) {
-        return false;
-      }
+    tmpArr.sort((a, b) => a - b);
+    for (let i = 0; i < arrSize; i++) {
+      ((idx) => {
+        if (tmpValue === null || "" + tmpValue < "" + tmpArr[idx]) {
+          tmpValue = tmpArr[idx];
+          uniqValues.push(tmpValue);
+        }
+      })(i);
     }
   }
-  return true;
+  return uniqValues;
 };
 
 // Function to check equality between two elements
 const equals = (obj1, obj2) => {
   "use strict";
+  
+  if (obj1 instanceof Array && obj2 instanceof Array) {
+    if (obj1.length !== obj2.length) {
+      return false;
+    }
+    obj1.sort();
+    obj2.sort();
+    for (let i = obj1.length - 1; i >= 0; i--) {
+      if (typeof(obj1[i]) !== typeof(obj2[i])) {
+        return false;
+      }
+      if (obj1[i] instanceof Object || obj1[i] instanceof Array) {
+        return equals(obj1[i], obj2[i]);
+      }
+      if (obj1[i] !== obj2[i]) {
+        return false;
+      }
+    }
+  }
+  else if (obj1 instanceof Object && obj2 instanceof Object) {
+    const keys1 = Object.keys(obj1).sort();
+    const keys2 = Object.keys(obj2).sort();
+    const keys = uniq(keys1, keys2);
 
-  let isEqual = true;
-  let val1 = [];
-  let val2 = [];
+    if (keys1.length !== keys2.length 
+    || keys1.join("") !== keys2.join("")) {
+      return false;
+    }
 
-  if (typeof(obj1) !== typeof(obj2)) {
+    for (let key of keys) {
+      if (typeof(obj1[key]) !== typeof(obj2[key])) {
+        return false;
+      }
+      if (obj1[key] instanceof Object || obj1[key] instanceof Array) {
+        return equals(obj1[key], obj2[key]);
+      }
+      if (obj1[key] !== obj2[key]) {
+        return false;
+      }
+    }
+  }
+  else if (obj1 !== obj2) {
     return false;
   }
-  if (isArray(obj1) && isArray(obj2)) {
-    return isArrayEquals(obj1, obj2);
-  }
-  if (type === "object") {
-    for (let val in obj1) {
-      val1.push(val);
-    }
-    for (let val in obj2) {
-      val2.push(val);
-    }
-    return (isArrayEquals(val1, val2));
-  }
-  return (obj1 === obj2);
-};
-
-const uniq = (arr1, arr2) => {
-  "use strict";
-
-  const uniqValues = [];
-  let index = 0;
-  let index2 = 0;
-
-  if (isArray(arr1) && isArray(arr2)) {
-    index = (arr1.length < arr2.length) ? arr1.length : arr2.length;
-    index2 = (arr1.length > arr2.length) ? arr1.length : arr2.length;
-    index2 -= index;
-    for (index = index - 1; index >= 0; index--) {
-      if (uniqValues.indexOf(arr1[index]) < 0) {
-        uniqValues.push(arr1[index]);
-      }
-      if (uniqValues.indexOf(arr2[index]) < 0) {
-        uniqValues.push(arr2[index]);
-      }
-    }
-    for (index2 - 1; index2 >= 0; index2--) {
-      if (uniqValues.indexOf(arr2[index2]) < 0) {
-        uniqValues.push(arr2[index2]);
-      }
-    }
-  }
-  return uniqValues;
+  return true;
 };
