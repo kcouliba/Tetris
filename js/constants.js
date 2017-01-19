@@ -33,8 +33,8 @@ const BLOCK_COLOR = {
   T: "#d9ca0b"
 };
 
-// Siding
-const SIDING = {
+// Facing
+const FACING = {
   STRAIGHT: 1,
   REVERSE: -1
 };
