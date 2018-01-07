@@ -6,16 +6,21 @@ const OptimizeCSSAssets = require('optimize-css-assets-webpack-plugin')
 const CleanWebpackPlugin = require('clean-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 
+const stylesExtract = ExtractTextWebpackPlugin.extract({
+  fallback: 'style-loader',
+  use: ['css-loader', 'sass-loader', 'postcss-loader'],
+})
+
 const pathsToClean = [ 'public' ]
-const cleanOptions = {
-  dry: true
-}
+const cleanOptions = {}
+
+const IS_PROD = process.env.NODE_ENV === 'production'
 
 let config = {
   entry: './src/index.js',
   output: {
     path: path.resolve(__dirname, './public'),
-    filename: './bundle.js'
+    filename: './[hash].js'
   },
   module: {
     rules: [
@@ -26,15 +31,12 @@ let config = {
       },
       {
         test: /\.scss$/,
-        use: ['css-hot-loader'].concat(ExtractTextWebpackPlugin.extract({
-          fallback: 'style-loader',
-          use: ['css-loader', 'sass-loader', 'postcss-loader'],
-        }))
+        use: IS_PROD ? stylesExtract : ['css-hot-loader'].concat(stylesExtract)
       }
     ]
   },
   plugins: [
-    new ExtractTextWebpackPlugin('styles.css'),
+    new ExtractTextWebpackPlugin('[contentHash].css'),
     new HtmlWebpackPlugin({
       title: 'Tetris'
     }),
@@ -49,8 +51,8 @@ let config = {
   devtool: 'eval-source-map'
 }
 
-if (process.env.NODE_ENV === 'production') {
-  module.exports.plugins.push(
+if (IS_PROD) {
+  config.plugins.push(
     new webpack.optimize.UglifyJsPlugin(),
     new OptimizeCSSAssets(),
     new CleanWebpackPlugin(pathsToClean, cleanOptions)
