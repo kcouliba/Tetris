@@ -1,5 +1,10 @@
 $midnight-blue : #2c3e50;
+$metal-green : #175e5d;
 
 body {
   background-color: $midnight-blue;
+}
+
+canvas {
+  border: 1px solid $metal-green;
 }
