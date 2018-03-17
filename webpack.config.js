@@ -26,7 +26,7 @@ const isProdEnv = ({ production }) => production
 
 module.exports = env => {
   const IS_PROD = isProdEnv(env)
-  const plugins = IS_PROD ? [...defaultPlugins, ...prodPlugins] : defaultPlugins
+  const plugins = defaultPlugins.concat(IS_PROD ? prodPlugins : [])
 
   return {
     mode: IS_PROD ? 'production' : 'development',
