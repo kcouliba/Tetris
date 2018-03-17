@@ -1,4 +1,3 @@
-const webpack = require('webpack')
 const path = require('path')
 
 const CleanWebpackPlugin = require('clean-webpack-plugin')
@@ -33,15 +32,23 @@ module.exports = env => {
     mode: IS_PROD ? 'production' : 'development',
     entry: './src/index.js',
     output: {
-      path: path.join(__dirname, "dist"),
-      filename: "[name].min.js"
+      path: path.join(__dirname, 'dist'),
+      filename: '[name].min.js'
     },
     module: {
       rules: [
         {
           test: /\.js$/,
           exclude: /node_modules/,
-          use: 'babel-loader',
+          use: [
+            'babel-loader',
+            {
+              loader: 'eslint-loader',
+              options: {
+                // options
+              }
+            }
+          ],
         },
         {
           test: /\.scss$/,
@@ -59,7 +66,7 @@ module.exports = env => {
     },
     devtool: IS_PROD ? false : 'eval-source-map',
     optimization: {
-      minimize: IS_PROD ? true : false,
+      minimize: IS_PROD,
       splitChunks: {
         cacheGroups: {
           commons: {

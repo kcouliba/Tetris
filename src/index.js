@@ -1,5 +1,7 @@
-import "../assets/stylesheets/styles.scss"
-import { foo } from './resource'
+import '../assets/stylesheets/styles.scss'
+import {
+  foo,
+} from './resource'
 
 let variable = 'hey ho !!!'
 
