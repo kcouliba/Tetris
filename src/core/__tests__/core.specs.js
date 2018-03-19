@@ -3,7 +3,11 @@ import {
   getTetrimino,
   rotateClockwise,
   rotateCounterClockwise,
+  moveLeft,
+  moveRight,
+  moveDownward,
 } from '../index'
+import { Vector2d } from '../../lib/math'
 
 describe('core', () => {
   test('initGrid should return an initialzed grid', () => {
@@ -83,5 +87,26 @@ describe('core', () => {
       [0, 1, 0, 0],
       [0, 0, 0, 0],
     ])
+  })
+
+  test('moveLeft should move a block to the left', () => {
+    const tetriminoPos = Vector2d.create(5, 7)
+    const expected = Vector2d.create(4, 7)
+
+    expect(moveLeft(tetriminoPos)).toMatchObject(expected)
+  })
+
+  test('moveRight should move a block to the right', () => {
+    const tetriminoPos = Vector2d.create(5, 7)
+    const expected = Vector2d.create(6, 7)
+
+    expect(moveRight(tetriminoPos)).toMatchObject(expected)
+  })
+
+  test('moveDownward should move a block downward', () => {
+    const tetriminoPos = Vector2d.create(5, 7)
+    const expected = Vector2d.create(5, 8)
+
+    expect(moveDownward(tetriminoPos)).toMatchObject(expected)
   })
 })

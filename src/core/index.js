@@ -6,6 +6,7 @@ import {
   // LOCKED_CELL
 } from './constants'
 import { TETRIMINO } from './tetriminos'
+import { Vector2d } from '../lib/math'
 
 // const isCellEmpty = cell => cell === EMPTY_CELL
 const isCellActive = cell => cell === ACTIVE_CELL
@@ -52,12 +53,11 @@ const getRotationMatrix = angle => [
  *  @param {Number} xOffset
  *  @param {Number} yOffset
  */
-const rotate = (tetrimino, angle, { xOffset = 0, yOffset = 0 }) => {
+const rotateTetrimino = (tetrimino, angle, { xOffset = 0, yOffset = 0 }) => {
   const newTetrimino = initGrid({
     height: tetrimino.length,
     width: tetrimino[0].length,
   })
-  // we keep an offset to put the rotated piece in the right quadrant
   const rotationMatrix = getRotationMatrix(angle)
 
   for (let y = 0; y < tetrimino.length; y++) {
@@ -73,11 +73,30 @@ const rotate = (tetrimino, angle, { xOffset = 0, yOffset = 0 }) => {
   return newTetrimino
 }
 
-export const rotateClockwise = tetrimino => rotate(
+export const rotateClockwise = tetrimino => rotateTetrimino(
   tetrimino, 3 * Math.PI / 2, { xOffset: tetrimino[0].length }
 )
-export const rotateCounterClockwise = tetrimino => rotate(
+export const rotateCounterClockwise = tetrimino => rotateTetrimino(
   tetrimino, Math.PI / 2, { yOffset: tetrimino.length }
+)
+
+/**
+ * move a tetrimino position
+ * @param {Vector2d} tetriminoPos current tetrimino coordinates
+ * @param {Vector2d} direction tetrimino moving vector
+ */
+const moveTetrimino = (tetriminoPos, direction) => {
+  return Vector2d.add(tetriminoPos, direction)
+}
+
+export const moveLeft = (tetriminoPos, speed = 1) => moveTetrimino(
+  tetriminoPos, Vector2d.create(-1 * speed, 0)
+)
+export const moveRight = (tetriminoPos, speed = 1) => moveTetrimino(
+  tetriminoPos, Vector2d.create(1 * speed, 0)
+)
+export const moveDownward = (tetriminoPos, speed = 1) => moveTetrimino(
+  tetriminoPos, Vector2d.create(0, 1 * speed)
 )
 
 // // The game logic
@@ -107,19 +126,6 @@ export const rotateCounterClockwise = tetrimino => rotate(
 //         color: "#aabbcc"
 //       };
 //     }
-//   }
-
-//   // Returns the current block center piece (for rotation)
-//   function getPieceCenter() {
-//     for (var index = block.length - 1; index >= 0; index--) {
-//       if (block[index].center) {
-//         return {
-//           x: block[index].x,
-//           y: block[index].y
-//         };
-//       }
-//     }
-//     return null;
 //   }
 
 //   // Cleans the block position on game grid
@@ -187,33 +193,6 @@ export const rotateCounterClockwise = tetrimino => rotate(
 //     clean();
 //     block = newPosition;
 //     return true;
-//   }
-
-//   // angle is in radians
-//   // TODO:
-//   //  make test on new position to adapt behaviour on collision detection
-//   function rotateBlock(angle) {
-//     const rotationMatrix = [
-//       Math.round(Math.cos(angle)),
-//       Math.round(- Math.sin(angle)),
-//       Math.round(Math.sin(angle)),
-//       Math.round(Math.cos(angle))
-//     ];
-//     const origin = getPieceCenter();
-//     const newPosition = [];
-
-//     clean();
-//     for (let index = block.length - 1; index >= 0; index--) {
-//       newPosition[index] = {
-//         x: ((block[index].x - origin.x) * rotationMatrix[0] + (block[index].y - origin.y) * rotationMatrix[2]),
-//         y: ((block[index].x - origin.x) * rotationMatrix[1] + (block[index].y - origin.y) * rotationMatrix[3]),
-//         center: block[index].center
-//       };
-//       newPosition[index].x += origin.x;
-//       newPosition[index].y += origin.y;
-//     }
-//     block = newPosition;
-//     return newPosition;
 //   }
 
 //   // scans the grid for complete line checking
@@ -291,14 +270,6 @@ export const rotateCounterClockwise = tetrimino => rotate(
 //   // moves the piece one step toward the right side of the grid
 //   this.movePieceRight = () => {
 //     moveBlock(1, 0);
-//   };
-
-//   this.rotatePieceClockwise = () => {
-//     rotateBlock(- Math.PI / 2);
-//   };
-
-//   this.rotatePieceAntiClockwise = () => {
-//     rotateBlock(Math.PI / 2);
 //   };
 
 //   this.getGrid = () => {
