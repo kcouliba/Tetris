@@ -3,20 +3,21 @@ import {
   HEIGHT,
   EMPTY_CELL,
   ACTIVE_CELL,
-  // LOCKED_CELL
+  LOCKED_CELL,
 } from './constants'
 import { TETRIMINO } from './tetriminos'
 import { Vector2d } from '../lib/math'
 
 // const isCellEmpty = cell => cell === EMPTY_CELL
 const isCellActive = cell => cell === ACTIVE_CELL
-// const isCellLocked = cell => cell === LOCKED_CELL
+const isCellLocked = cell => cell === LOCKED_CELL
 
 /**
  * initializes a grid
  * @param {Object}
  *  @param {Number} width grid width
  *  @param {Number} height grid height
+ * @returns {Array}
  */
 export const initGrid = ({ width = WIDTH, height = HEIGHT }) => {
   const grid = Array(height).fill(null)
@@ -31,12 +32,22 @@ export const initGrid = ({ width = WIDTH, height = HEIGHT }) => {
  * a 4x4 grid where active cells represents a form
  * @param {Enum<String>} form the tetrimino form
  * one of [L, R_L, S, R_S, T, O, I]
+ * @returns {Array}
  */
 export const getTetrimino = form => TETRIMINO[form]
 
 /**
+ * locks a tetrimino block
+ * @param {Array} tetrimino
+ */
+export const lockTetrimino = tetrimino => tetrimino.map(
+  line => line.map(cell => isCellActive(cell) ? LOCKED_CELL : cell)
+)
+
+/**
  * provides a rotation matrix according to the passed angle (radians)
  * @param {Number} angle
+ * @returns {Array}
  */
 const getRotationMatrix = angle => [
   Math.round(Math.cos(angle)),
@@ -52,6 +63,7 @@ const getRotationMatrix = angle => [
  * @param {Object} offset offset to replace block into the right quadrant
  *  @param {Number} xOffset
  *  @param {Number} yOffset
+ * @returns {Array}
  */
 const rotateTetrimino = (tetrimino, angle, { xOffset = 0, yOffset = 0 }) => {
   const newTetrimino = initGrid({
@@ -73,31 +85,74 @@ const rotateTetrimino = (tetrimino, angle, { xOffset = 0, yOffset = 0 }) => {
   return newTetrimino
 }
 
+/**
+ * rotate a tetrimino clockwise
+ * @param {Array} tetrimino
+ * @returns {Array}
+ */
 export const rotateClockwise = tetrimino => rotateTetrimino(
   tetrimino, 3 * Math.PI / 2, { xOffset: tetrimino[0].length }
 )
+
+/**
+ * rotate a tetrimino counter clockwise
+ * @param {Array} tetrimino
+ * @returns {Array}
+ */
 export const rotateCounterClockwise = tetrimino => rotateTetrimino(
   tetrimino, Math.PI / 2, { yOffset: tetrimino.length }
 )
 
 /**
- * move a tetrimino position
+ * translate a tetrimino position
  * @param {Vector2d} tetriminoPos current tetrimino coordinates
  * @param {Vector2d} direction tetrimino moving vector
+ * @returns {Vector2d}
  */
 const moveTetrimino = (tetriminoPos, direction) => {
   return Vector2d.add(tetriminoPos, direction)
 }
 
+/**
+ * translate a tetrimino position to the left
+ * @param {Vector2d} tetriminoPos current tetrimino coordinates
+ * @param {Number} speed translation speed
+ * @returns {Vector2d}
+ */
 export const moveLeft = (tetriminoPos, speed = 1) => moveTetrimino(
   tetriminoPos, Vector2d.create(-1 * speed, 0)
 )
+
+/**
+ * translate a tetrimino position to the right
+ * @param {Vector2d} tetriminoPos current tetrimino coordinates
+ * @param {Number} speed translation speed
+ * @returns {Vector2d}
+ */
 export const moveRight = (tetriminoPos, speed = 1) => moveTetrimino(
   tetriminoPos, Vector2d.create(1 * speed, 0)
 )
+
+/**
+ * translate a tetrimino position downward
+ * @param {Vector2d} tetriminoPos current tetrimino coordinates
+ * @param {Number} speed translation speed
+ * @returns {Vector2d}
+ */
 export const moveDownward = (tetriminoPos, speed = 1) => moveTetrimino(
   tetriminoPos, Vector2d.create(0, 1 * speed)
 )
+
+const isLineComplete = line => line.every(isCellLocked)
+
+export const scanLines = grid => grid.reduce((acc, line) => {
+  if (isLineComplete(line)) {
+    acc.unshift(Array(line.length).fill(EMPTY_CELL))
+  } else {
+    acc.push(line)
+  }
+  return acc
+}, [])
 
 // // The game logic
 // function App() {

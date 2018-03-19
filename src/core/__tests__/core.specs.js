@@ -6,8 +6,11 @@ import {
   moveLeft,
   moveRight,
   moveDownward,
+  lockTetrimino,
+  scanLines,
 } from '../index'
 import { Vector2d } from '../../lib/math'
+import { LOCKED_CELL } from '../constants';
 
 describe('core', () => {
   test('initGrid should return an initialzed grid', () => {
@@ -20,6 +23,16 @@ describe('core', () => {
       [0, 1, 0, 0],
       [0, 1, 0, 0],
       [0, 1, 1, 0],
+    ])
+  })
+
+  test('lockTetrimino should return a locked tetrimino', () => {
+    const tetrimino = getTetrimino('L')
+    expect(lockTetrimino(tetrimino)).toEqual([
+      [0, 0, 0, 0],
+      [0, 2, 0, 0],
+      [0, 2, 0, 0],
+      [0, 2, 2, 0],
     ])
   })
 
@@ -108,5 +121,14 @@ describe('core', () => {
     const expected = Vector2d.create(5, 8)
 
     expect(moveDownward(tetriminoPos)).toMatchObject(expected)
+  })
+
+  test('scanLines should clear a line when filled with locked cells', () => {
+    const grid = initGrid({width: 3, height: 8})
+    const expected = initGrid({width: 3, height: 8})
+
+    grid[7].fill(LOCKED_CELL)
+    console.log({grid, expected})
+    expect(scanLines(grid)).toEqual(expected)
   })
 })
