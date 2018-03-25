@@ -33,7 +33,7 @@ let grid = null
 let tetrimino = null
 let tetriminoPos = null
 
-const blockAction = _ => !running || paused
+const blockAction = () => !running || paused
 
 /**
  * rollback a moving action

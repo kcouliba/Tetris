@@ -5,10 +5,12 @@ import {
   BOARD_HEIGHT,
   BLOCK_WIDTH,
   BLOCK_HEIGHT,
+  BACKGROUND_COLOR,
+  BLOCK_COLOR,
 } from './constants'
 
 const clear = ctx => {
-  ctx.fillStyle = '#AAA'
+  ctx.fillStyle = BACKGROUND_COLOR
   ctx.fillRect(0, 0, WIDTH, HEIGHT)
 }
 
@@ -25,9 +27,9 @@ const drawBoard = (ctx, {grid}) => {
     for (let x = 0; x < grid[y].length; x++) {
       if (grid[y][x] !== 0) {
         const xPos = x * BLOCK_WIDTH + (WIDTH - BOARD_WIDTH) / 2
-        const yPos = y * BLOCK_HEIGHT + (WIDTH - BOARD_WIDTH) / 2
+        const yPos = y * BLOCK_HEIGHT
 
-        ctx.fillStyle = '#AAA'
+        ctx.fillStyle = BLOCK_COLOR[grid[y][x]]
         ctx.fillRect(xPos, yPos, BLOCK_WIDTH, BLOCK_HEIGHT)
         ctx.strokeRect(xPos, yPos, BLOCK_WIDTH, BLOCK_HEIGHT)
       }
