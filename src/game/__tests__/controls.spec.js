@@ -1,43 +1,16 @@
 import {
-  initGrid,
-  getTetrimino,
   rotateClockwise,
   rotateCounterClockwise,
   moveLeft,
   moveRight,
   moveDownward,
-  lockTetrimino,
-  scanLines,
-} from '../index'
+} from '../controls'
 import { Vector2d } from '../../lib/math'
-import { LOCKED_CELL } from '../constants';
+import { TETRIMINO } from '../../core/tetriminos'
 
-describe('core', () => {
-  test('initGrid should return an initialzed grid', () => {
-    expect(initGrid({ width: 2, height: 2 })).toEqual([[0, 0], [0, 0]])
-  })
-
-  test('getTetrimino should return a new tetrimino', () => {
-    expect(getTetrimino('L')).toEqual([
-      [0, 0, 0, 0],
-      [0, 1, 0, 0],
-      [0, 1, 0, 0],
-      [0, 1, 1, 0],
-    ])
-  })
-
-  test('lockTetrimino should return a locked tetrimino', () => {
-    const tetrimino = getTetrimino('L')
-    expect(lockTetrimino(tetrimino)).toEqual([
-      [0, 0, 0, 0],
-      [0, 2, 0, 0],
-      [0, 2, 0, 0],
-      [0, 2, 2, 0],
-    ])
-  })
-
+describe('controls', () => {
   test('rotateClockwise should rotate a block as expected', () => {
-    const tetrimino = getTetrimino('L')
+    const tetrimino = TETRIMINO.L
     let nextRotation
 
     expect(tetrimino).toEqual([
@@ -70,7 +43,7 @@ describe('core', () => {
   })
 
   test('rotateCounterClockwise should rotate a block as expected', () => {
-    const tetrimino = getTetrimino('L')
+    const tetrimino = TETRIMINO.L
     let nextRotation
 
     expect(tetrimino).toEqual([
@@ -121,14 +94,5 @@ describe('core', () => {
     const expected = Vector2d.create(5, 8)
 
     expect(moveDownward(tetriminoPos)).toMatchObject(expected)
-  })
-
-  test('scanLines should clear a line when filled with locked cells', () => {
-    const grid = initGrid({width: 3, height: 8})
-    const expected = initGrid({width: 3, height: 8})
-
-    grid[7].fill(LOCKED_CELL)
-    console.log({grid, expected})
-    expect(scanLines(grid)).toEqual(expected)
   })
 })
