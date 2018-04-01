@@ -87,18 +87,27 @@ export const newGame = () => {
   grid = initGrid()
   tetrimino = getRandomTetrimino()
   tetriminoPos = TETRIMINO_START_POS
+  running = true
+
+  return {
+    grid,
+    paused,
+    running,
+  }
 }
 
 /**
- * moves a tetrimino to the left (-1) or to the right (0|1)
+ * moves a tetrimino to the left (-1) or to the right (1)
  * returns true if action succeeded
  * @param {Number} direction
  * @returns {Boolean}
  */
 export const move = direction => {
+  console.log('move', direction)
   if (blockAction()) {
     return false
   }
+  console.log('move validated')
   const moveFn = direction < 0 ? moveLeft : moveRight
   const rollBackFn = direction < 0 ? moveRight : moveLeft
 
@@ -107,7 +116,7 @@ export const move = direction => {
 }
 
 /**
- * rotates a tetrimino clockwise (0|1) or counter clockwise (-1)
+ * rotates a tetrimino clockwise (1) or counter clockwise (-1)
  * returns true if action succeeded
  * @param {Number} clockwise
  * @returns {Boolean}
@@ -116,8 +125,8 @@ export const rotate = clockwise => {
   if (blockAction()) {
     return false
   }
-  const rotationFn = clockwise ? rotateClockwise : rotateCounterClockwise
-  const rollBackFn = clockwise ? rotateCounterClockwise : rotateClockwise
+  const rotationFn = clockwise > 0 ? rotateClockwise : rotateCounterClockwise
+  const rollBackFn = clockwise > 0 ? rotateCounterClockwise : rotateClockwise
 
   tetrimino = rotationFn(tetrimino)
   return moveToFit(rollBackFn)

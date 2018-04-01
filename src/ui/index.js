@@ -8,6 +8,7 @@ import {
   BACKGROUND_COLOR,
   BLOCK_COLOR,
 } from './constants'
+import { initControls } from './inputs'
 
 const clear = ctx => {
   ctx.fillStyle = BACKGROUND_COLOR
@@ -44,8 +45,10 @@ export const initCanvas = canvas => {
   canvas.setAttribute('height', HEIGHT + 'px')
 }
 
-export const update = (ctx, gameInstace) => {
+export const update = (ctx, gameInstance) => {
   clear(ctx)
   drawAssets(ctx)
-  drawBoard(ctx, gameInstace)
+  drawBoard(ctx, gameInstance)
 }
+
+export const initInputs = initControls
