@@ -2,9 +2,6 @@ import {
   moveTetrimino,
   rotateTetrimino,
 } from '../core'
-import {
-  TETRIMINO_BLOCK_SIZE,
-} from './constants'
 import { Vector2d } from '../lib/math'
 
 /**
@@ -42,7 +39,7 @@ export const moveDownward = (tetriminoPos, speed = 1) => moveTetrimino(
  * @returns {Array}
  */
 export const rotateClockwise = tetrimino => rotateTetrimino(
-  tetrimino, 3 * Math.PI / 2, { xOffset: TETRIMINO_BLOCK_SIZE }
+  tetrimino, 3 * Math.PI / 2
 )
 
 /**
@@ -51,5 +48,5 @@ export const rotateClockwise = tetrimino => rotateTetrimino(
  * @returns {Array}
  */
 export const rotateCounterClockwise = tetrimino => rotateTetrimino(
-  tetrimino, Math.PI / 2, { yOffset: TETRIMINO_BLOCK_SIZE }
+  tetrimino, Math.PI / 2
 )

@@ -2,7 +2,6 @@ import {
   EMPTY_CELL,
   HEIGHT,
   WIDTH,
-  TETRIMINO_BLOCK_SIZE,
   TETRIMINO_BLOCKS,
 } from './constants'
 import { TETRIMINO } from './tetriminos'
@@ -66,23 +65,36 @@ const getRotationMatrix = angle => [
  *  @param {Number} yOffset
  * @returns {Array}
  */
-export const rotateTetrimino = (tetrimino, angle, { xOffset = 0, yOffset = 0 }) => {
+export const rotateTetrimino = (tetrimino, angle) => {
+  // we are going to have width and height swapped
   const newTetrimino = initGrid({
-    height: TETRIMINO_BLOCK_SIZE,
-    width: TETRIMINO_BLOCK_SIZE,
+    height: tetrimino[0].length,
+    width: tetrimino.length,
   })
+  let xOff = 0
+  let yOff = 0
+  const coords = []
   const rotationMatrix = getRotationMatrix(angle)
 
-  for (let y = 0; y < TETRIMINO_BLOCK_SIZE; y++) {
-    for (let x = 0; x < TETRIMINO_BLOCK_SIZE; x++) {
+  for (let y = 0; y < tetrimino.length; y++) {
+    for (let x = 0; x < tetrimino[y].length; x++) {
       if (isCellNotEmpty(tetrimino[y][x])) {
-        const rX = x * rotationMatrix[0] + y * rotationMatrix[1] + xOffset
-        const rY = x * rotationMatrix[2] + y * rotationMatrix[3] + yOffset
+        const rX = x * rotationMatrix[0] + y * rotationMatrix[1]
+        const rY = x * rotationMatrix[2] + y * rotationMatrix[3]
 
-        newTetrimino[rY][rX] = tetrimino[y][x]
+        xOff = rX < xOff ? rX : xOff
+        yOff = rY < yOff ? rY : yOff
+        coords.push([rX, rY, tetrimino[y][x]])
       }
     }
   }
+  xOff *= -1
+  yOff *= -1
+  coords.forEach(
+    ([x, y, value]) => {
+      newTetrimino[y + yOff][x + xOff] = value
+    }
+  )
   return newTetrimino
 }
 

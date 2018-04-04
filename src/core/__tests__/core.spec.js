@@ -1,7 +1,6 @@
 import {
   initGrid,
   getTetrimino,
-  getRandomTetrimino,
   scanLines,
 } from '../index'
 import {
@@ -26,15 +25,10 @@ describe('core', () => {
 
   test('getTetrimino should return a new tetrimino', () => {
     expect(getTetrimino('L')).toEqual([
-      [EMPTY_CELL, EMPTY_CELL, EMPTY_CELL, EMPTY_CELL],
-      [EMPTY_CELL, 1, EMPTY_CELL, EMPTY_CELL],
-      [EMPTY_CELL, 1, EMPTY_CELL, EMPTY_CELL],
-      [EMPTY_CELL, 1, 1, EMPTY_CELL],
+      [1, EMPTY_CELL],
+      [1, EMPTY_CELL],
+      [1, 1],
     ])
-  })
-
-  test('getRandomTetrimino should return a new random tetrimino', () => {
-    expect(getRandomTetrimino()).toHaveLength(4)
   })
 
   test('scanLines should clear a line when filled with locked cells', () => {

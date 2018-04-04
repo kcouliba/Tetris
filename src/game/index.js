@@ -5,10 +5,7 @@ import {
   rotateClockwise,
   rotateCounterClockwise,
 } from './controls'
-import {
-  TETRIMINO_BLOCK_SIZE,
-  WIDTH,
-} from './constants'
+import { WIDTH } from './constants'
 import { tetriminoNotFit } from './validators'
 import {
   initGrid,
@@ -17,14 +14,6 @@ import {
   // scanLines,
 } from '../core'
 import { Vector2d } from '../lib/math'
-
-/**
- * our tetrimino starts at the middle of the grid
- */
-const TETRIMINO_START_POS = Vector2d.create(
-  WIDTH / 2 - TETRIMINO_BLOCK_SIZE / 2,
-  0
-)
 
 let running = false
 let paused = false
@@ -64,10 +53,10 @@ const moveToFit = rollBackFn => {
  * places the current tetrimino onto the grid
  */
 const updateGrid = () => {
-  const newGrid = [...grid]
+  const newGrid = initGrid()
 
-  for (let y = 0; y < TETRIMINO_BLOCK_SIZE; y++) {
-    for (let x = 0; x < TETRIMINO_BLOCK_SIZE; x++) {
+  for (let y = 0; y < tetrimino.length; y++) {
+    for (let x = 0; x < tetrimino[0].length; x++) {
       newGrid[tetriminoPos.y + y][tetriminoPos.x + x] = tetrimino[y][x]
     }
   }
@@ -86,7 +75,10 @@ const updateGrid = () => {
 export const newGame = () => {
   grid = initGrid()
   tetrimino = getRandomTetrimino()
-  tetriminoPos = TETRIMINO_START_POS
+  tetriminoPos = Vector2d.create(
+    Math.floor(WIDTH / 2 - tetrimino[0].length / 2),
+    0
+  )
   running = true
 
   return {
@@ -103,11 +95,9 @@ export const newGame = () => {
  * @returns {Boolean}
  */
 export const move = direction => {
-  console.log('move', direction)
   if (blockAction()) {
     return false
   }
-  console.log('move validated')
   const moveFn = direction < 0 ? moveLeft : moveRight
   const rollBackFn = direction < 0 ? moveRight : moveLeft
 

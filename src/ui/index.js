@@ -26,7 +26,7 @@ const drawBoard = (ctx, {grid}) => {
   ctx.strokeStyle = '#FFF'
   for (let y = 0; y < grid.length; y++) {
     for (let x = 0; x < grid[y].length; x++) {
-      if (grid[y][x] !== 0) {
+      if (grid[y][x] !== 0) { // @todo change 0 for EMPTY_CELL
         const xPos = x * BLOCK_WIDTH + (WIDTH - BOARD_WIDTH) / 2
         const yPos = y * BLOCK_HEIGHT
 

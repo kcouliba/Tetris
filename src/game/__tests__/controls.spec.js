@@ -14,31 +14,25 @@ describe('controls', () => {
     let nextRotation
 
     expect(tetrimino).toEqual([
-      [0, 0, 0, 0],
-      [0, 1, 0, 0],
-      [0, 1, 0, 0],
-      [0, 1, 1, 0],
+      [1, 0],
+      [1, 0],
+      [1, 1],
     ])
     nextRotation = rotateClockwise(tetrimino)
     expect(nextRotation).toEqual([
-      [0, 0, 0, 0],
-      [0, 1, 1, 1],
-      [0, 1, 0, 0],
-      [0, 0, 0, 0],
+      [1, 1, 1],
+      [1, 0, 0],
     ])
     nextRotation = rotateClockwise(nextRotation)
     expect(nextRotation).toEqual([
-      [0, 0, 0, 0],
-      [0, 0, 1, 1],
-      [0, 0, 0, 1],
-      [0, 0, 0, 1],
+      [1, 1],
+      [0, 1],
+      [0, 1],
     ])
     nextRotation = rotateClockwise(nextRotation)
     expect(nextRotation).toEqual([
-      [0, 0, 0, 0],
-      [0, 0, 0, 0],
-      [0, 0, 0, 1],
-      [0, 1, 1, 1],
+      [0, 0, 1],
+      [1, 1, 1],
     ])
   })
 
@@ -47,31 +41,25 @@ describe('controls', () => {
     let nextRotation
 
     expect(tetrimino).toEqual([
-      [0, 0, 0, 0],
-      [0, 1, 0, 0],
-      [0, 1, 0, 0],
-      [0, 1, 1, 0],
+      [1, 0],
+      [1, 0],
+      [1, 1],
     ])
     nextRotation = rotateCounterClockwise(tetrimino)
     expect(nextRotation).toEqual([
-      [0, 0, 0, 0],
-      [0, 0, 0, 0],
-      [0, 0, 0, 1],
-      [0, 1, 1, 1],
+      [0, 0, 1],
+      [1, 1, 1],
     ])
     nextRotation = rotateCounterClockwise(nextRotation)
     expect(nextRotation).toEqual([
-      [0, 0, 0, 0],
-      [0, 0, 1, 1],
-      [0, 0, 0, 1],
-      [0, 0, 0, 1],
+      [1, 1],
+      [0, 1],
+      [0, 1],
     ])
     nextRotation = rotateCounterClockwise(nextRotation)
     expect(nextRotation).toEqual([
-      [0, 0, 0, 0],
-      [0, 1, 1, 1],
-      [0, 1, 0, 0],
-      [0, 0, 0, 0],
+      [1, 1, 1],
+      [1, 0, 0],
     ])
   })
 
