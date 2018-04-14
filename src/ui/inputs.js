@@ -8,6 +8,8 @@ import {
   RIGHT,
   CLOCKWISE,
   COUNTER_CLOCKWISE,
+} from '../game/constants'
+import {
   LEFT_INPUT,
   RIGHT_INPUT,
   DOWN_INPUT,

@@ -35,9 +35,3 @@ export const RIGHT_INPUT = 'D'
 export const DOWN_INPUT = 'S'
 export const ROT_CLOCKWISE_INPUT = 'O'
 export const ROT_COUNTER_CLOCKWISE_INPUT = 'P'
-
-export const DOWNWARD = -1
-export const LEFT = -1
-export const RIGHT = 1
-export const COUNTER_CLOCKWISE = -1
-export const CLOCKWISE = 1
