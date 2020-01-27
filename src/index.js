@@ -10,7 +10,7 @@ const ctx = canvas.getContext('2d')
 // gameInstance = Game.newGame()
 Game.newGame()
 UI.initCanvas(canvas)
-UI.initInputs(({actions, key}) => {
+UI.initInputs(({ actions, key }) => {
   const gInstance = Game.update()
   console.log(`actions ${actions} for key ${key}`)
   console.log(gInstance)

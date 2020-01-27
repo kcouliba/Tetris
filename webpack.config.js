@@ -1,70 +1,51 @@
 const path = require('path')
-
-const CleanWebpackPlugin = require('clean-webpack-plugin')
-const ExtractTextWebpackPlugin = require('extract-text-webpack-plugin')
+const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 
-const stylesExtract = ExtractTextWebpackPlugin.extract({
-  fallback: 'style-loader',
-  use: ['css-loader', 'sass-loader', 'postcss-loader'],
-})
-const defaultPlugins = [
-  new ExtractTextWebpackPlugin('[contentHash].css'),
-  new HtmlWebpackPlugin({
-    // icon source http://www.iconarchive.com/show/cold-fusion-hd-icons-by-chrisbanks2/tetris-icon.html
-    favicon: './assets/icons/fav-icon.png',
-    template: './index-template.html'
-  }),
-]
-const prodPlugins = [
-  new OptimizeCSSAssetsPlugin(),
-  new CleanWebpackPlugin(['dist'], {})
-]
-
-const isProdEnv = ({ production }) => production
+const isProdEnv = env => !!(env && env.production)
 
 module.exports = env => {
   const IS_PROD = isProdEnv(env)
-  const plugins = defaultPlugins.concat(IS_PROD ? prodPlugins : [])
 
   return {
     mode: IS_PROD ? 'production' : 'development',
     entry: './src/index.js',
     output: {
-      path: path.join(__dirname, 'dist'),
-      filename: '[name].min.js'
+      path: path.resolve(__dirname, 'dist'),
+      filename: '[name].min.js',
     },
-    module: {
-      rules: [
-        {
-          test: /\.js$/,
-          exclude: /node_modules/,
-          use: [
-            'babel-loader',
-            {
-              loader: 'eslint-loader',
-              options: {
-                // options
-              }
-            }
-          ],
-        },
-        {
-          test: /\.scss$/,
-          use: IS_PROD ? stylesExtract : ['css-hot-loader'].concat(stylesExtract),
-        }
-      ]
-    },
-    plugins,
+    devtool: IS_PROD ? false : 'inline-source-map',
     devServer: {
       contentBase: path.resolve(__dirname, './dist'),
       historyApiFallback: true,
       inline: true,
       open: true,
-      hot: false
+      hot: true,
     },
-    devtool: IS_PROD ? false : 'eval-source-map',
+    plugins: [
+      new HtmlWebpackPlugin({
+        // icon source http://www.iconarchive.com/show/cold-fusion-hd-icons-by-chrisbanks2/tetris-icon.html
+        favicon: './assets/icons/favicon.png',
+        template: './index-template.html',
+        title: IS_PROD ? 'tetris' : 'tetris - development',
+      }),
+      ...(IS_PROD ? [] : [new CleanWebpackPlugin()]),
+    ],
+    module: {
+      rules: [
+        {
+          test: /\.s[ac]ss$/i,
+          use: [
+            // Creates `style` nodes from JS strings
+            'style-loader',
+            // Translates CSS into CommonJS
+            'css-loader',
+            // Compiles Sass to CSS
+            'sass-loader',
+          ],
+        },
+      ],
+    },
     optimization: {
       minimize: IS_PROD,
       splitChunks: {
@@ -72,10 +53,10 @@ module.exports = env => {
           commons: {
             test: /[\\/]node_modules[\\/]/,
             name: 'vendors',
-            chunks: 'all'
-          }
-        }
-      }
+            chunks: 'all',
+          },
+        },
+      },
     },
   }
 }
