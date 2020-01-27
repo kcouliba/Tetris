@@ -1,53 +1,47 @@
 import '../assets/stylesheets/styles.scss'
 import * as Game from './game'
 import * as UI from './ui'
+import { DOWNWARD } from './game/constants'
 
 const canvas = document.querySelector('#canvas')
 const ctx = canvas.getContext('2d')
-// let gameInstance = null
 
-// initialization phase
-// gameInstance = Game.newGame()
-Game.newGame()
-UI.initCanvas(canvas)
-UI.initInputs(({ actions, key }) => {
-  const gInstance = Game.update()
-  console.log(`actions ${actions} for key ${key}`)
-  console.log(gInstance)
-  UI.update(ctx, Game.update())
-})
+window.requestAnimationFrame(run())
 
-// // loop phase
-// setInterval(() => {
-//   // console.log('refresh')
-//   const gInstance = Game.update()
+function run() {
+  const MIN_TS = 50
+  let prevTs
+  let level = 25
 
-//   console.log(gInstance)
-//   UI.update(ctx, gInstance)
-// }, 100000)
-// // loop phase
-// gameInstance = Game.update()
-// UI.update(ctx, gameInstance)
+  UI.initCanvas(canvas)
+  UI.initInputs(({ actions, key }) => {
+    const gInstance = Game.update()
 
-// function Timer() {
-//   const tick = 0;
-//   const that = this;
-//   let elapsedTime = 0;
-//
-//   this.setTick = (tick) => {
-//     that._tick = tick;
-//   };
-//
-//   this.tickEvent = () => {
-//     // console.log(that._tick);
-//   };
-//
-//   this.start = () => {
-//     elapsedTime = setTimeout(() => {
-//       that.tickEvent();
-//       that.start();
-//       // console.log(elapsedTime);
-//     }, this._tick);
-//   };
-//   return this;
-// }
+    if (key === 'ARROWUP') {
+      ++level
+    }
+    if (key === 'ARROWDOWN') {
+      --level
+    }
+    level = level < 0 ? 0 : level > 25 ? 25 : level
+    console.log(`actions ${actions} for key ${key}`)
+    console.log(`level ${level}`)
+    console.log(gInstance)
+  })
+  Game.newGame()
+
+  function draw(ts) {
+    if (!prevTs) prevTs = ts
+    if (ts - prevTs >= MIN_TS * (1 + 25 - level)) {
+      prevTs = ts
+      Game.move(DOWNWARD)
+      // const lineCount = Game.scan()
+
+      // console.log(lineCount)
+    }
+    UI.update(ctx, Game.update())
+    window.requestAnimationFrame(draw)
+  }
+
+  return draw
+}

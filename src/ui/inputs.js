@@ -1,7 +1,4 @@
-import {
-  move,
-  rotate,
-} from '../game'
+import { move, rotate } from '../game'
 import {
   DOWNWARD,
   LEFT,
@@ -60,23 +57,20 @@ const handleActions = () => {
   return Object.keys(keyPressed).map(triggerAction)
 }
 
-export const initControls = (onKeyboardEvent) => {
+export const initControls = onKeyboardEvent => {
   let executedActions
 
-  document.addEventListener('keydown', evt => {
-    const key = evt.key.toUpperCase()
+  document.addEventListener('keydown', onKeyEvent(activateKey))
+  document.addEventListener('keyup', onKeyEvent(deactivateKey))
 
-    activateKey(key)
-    executedActions = handleActions().join(', ')
+  function onKeyEvent(fn) {
+    return evt => {
+      const key = evt.key.toUpperCase()
 
-    onKeyboardEvent({actions: executedActions, key})
-  })
-  document.addEventListener('keyup', evt => {
-    const key = evt.key.toUpperCase()
+      fn(key)
+      executedActions = handleActions().join(', ')
 
-    deactivateKey(key)
-    executedActions = handleActions().join(', ')
-
-    onKeyboardEvent({actions: executedActions, key})
-  })
+      onKeyboardEvent({ actions: executedActions, key })
+    }
+  }
 }
